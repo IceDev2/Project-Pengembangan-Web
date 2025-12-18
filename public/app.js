@@ -1,32 +1,41 @@
-const form = document.getElementById("loginForm");
-const messageBox = document.getElementById("message");
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-function setMessage(text, type = 'info') {
-    messageBox.textContent = text;
-    messageBox.className = type;
-    messageBox.classList.add('message',type);
-}
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
 
-form.addEventListener("submit", async (event) => {
-    event.preventDefault(); 
-
-    setMessage("Memproses...", 'info');
-
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
+    // Validasi sederhana
+    if (!username || !password) {
+        showMessage('Username dan password harus diisi', 'error');
+        return;
+    }
 
     try {
-        const response = await fetch("/api/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
         });
 
-        const result = await response.json();
-        setMessage(result.message, response.ok ? 'success' : 'error');
-    } catch (error) {
-        setMessage("Terjadi kesalahan. Silakan coba lagi.", 'error');
+        const result = await res.json();
+        
+        if (res.ok && result.success) {
+            showMessage(result.message, 'success');
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 1500);
+        } else {
+            showMessage(result.message || 'Login gagal', 'error');
+        }
+    } catch (err) {
+        console.error('Fetch error:', err);
+        showMessage('Terjadi kesalahan jaringan. Silakan coba lagi.', 'error');
     }
 });
+
+function showMessage(text, type) {
+    const messageDiv = document.getElementById('message');
+    messageDiv.textContent = text;
+    messageDiv.className = `message ${type}`;
+    messageDiv.style.display = 'block';
+}

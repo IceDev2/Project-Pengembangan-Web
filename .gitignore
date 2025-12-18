@@ -1,0 +1,10 @@
+#node js depedencies
+node_modules/
+
+#Package manager lock file
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+#Sesion
+sessions/
